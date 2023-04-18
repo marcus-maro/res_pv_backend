@@ -1,0 +1,18 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "res_pv_backend"
+version = "0.0.1"
+authors = [
+  { name="Marcus Marosvari", email="mdmarosvari@gmail.com" },
+]
+description = "Backend for Residential PV application"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
