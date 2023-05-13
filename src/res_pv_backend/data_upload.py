@@ -5,8 +5,9 @@ from traceback import format_exc
 
 import pandas as pd
 from gfuncs import drive, gmail
+from pandas.tseries.offsets import DateOffset
 
-from res_pv_backend import data_query
+from res_pv_backend.data_query import solaredge, solcast
 
 logging.basicConfig(
     filename=Path(__file__).parent / "data_upload.log",
@@ -17,11 +18,8 @@ logging.basicConfig(
 logging.info("=" * 15)
 logging.info("Starting data upload script")
 
-try:
-    df = data_query.query_solcast()
 
-    upload_path_parent = Path("res_pv/data/solcast")
-
+def upload_df(df, upload_path_parent):
     for date, df_date in df.groupby(df.index.date):
         year, month = date.year, date.month
         date_str = date.strftime("%Y-%m-%d")
@@ -46,11 +44,25 @@ try:
         print(upload_path / file_name)
         os.remove(file_name)
 
+
+try:
+    df_solcast = solcast.get_pv_estimate()
+    upload_path_parent_solcast = Path("res_pv/data/solcast")
+    upload_df(df_solcast, upload_path_parent_solcast)
+
+    df_solaredge_power = solaredge.get_site_power()
+    upload_path_parent_solaredge = Path("res_pv/data/solaredge/site_power")
+    upload_df(df_solaredge_power, upload_path_parent_solaredge)
+
+    df_solaredge_energy = solaredge.get_site_energy()
+    upload_path_parent_solaredge = Path("res_pv/data/solaredge/site_energy")
+    upload_df(df_solaredge_energy, upload_path_parent_solaredge)
+
 except Exception as e:
     tb = format_exc()
     logging.error(tb)
     gmail.send_email(
-        subject="Error during Solcast data upload",
+        subject="Error during data upload",
         body=tb,
     )
 
