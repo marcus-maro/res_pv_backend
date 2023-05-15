@@ -5,8 +5,8 @@ from traceback import format_exc
 
 import pandas as pd
 from gfuncs import drive, gmail
-from pandas.tseries.offsets import DateOffset
 
+from res_pv_backend.data_insert.data_insert import insert_df
 from res_pv_backend.data_query import solaredge, solcast
 
 logging.basicConfig(
@@ -47,15 +47,19 @@ def upload_df(df, upload_path_parent):
 
 try:
     df_solcast = solcast.get_pv_estimate()
-    upload_path_parent_solcast = Path("res_pv/data/solcast")
-    upload_df(df_solcast, upload_path_parent_solcast)
-
     df_solaredge_power = solaredge.get_site_power()
-    upload_path_parent_solaredge = Path("res_pv/data/solaredge/site_power")
-    upload_df(df_solaredge_power, upload_path_parent_solaredge)
-
     df_solaredge_energy = solaredge.get_site_energy()
+
+    insert_df(df_solcast)
+    insert_df(df_solaredge_power)
+    insert_df(df_solaredge_energy)
+
+    upload_path_parent_solcast = Path("res_pv/data/solcast")
+    upload_path_parent_solaredge = Path("res_pv/data/solaredge/site_power")
     upload_path_parent_solaredge = Path("res_pv/data/solaredge/site_energy")
+
+    upload_df(df_solcast, upload_path_parent_solcast)
+    upload_df(df_solaredge_power, upload_path_parent_solaredge)
     upload_df(df_solaredge_energy, upload_path_parent_solaredge)
 
 except Exception as e:
