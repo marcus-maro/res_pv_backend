@@ -55,12 +55,12 @@ try:
     insert_df(df_solaredge_energy)
 
     upload_path_parent_solcast = Path("res_pv/data/solcast")
-    upload_path_parent_solaredge = Path("res_pv/data/solaredge/site_power")
-    upload_path_parent_solaredge = Path("res_pv/data/solaredge/site_energy")
+    upload_path_parent_solaredge_power = Path("res_pv/data/solaredge/site_power")
+    upload_path_parent_solaredge_energy = Path("res_pv/data/solaredge/site_energy")
 
     upload_df(df_solcast, upload_path_parent_solcast)
-    upload_df(df_solaredge_power, upload_path_parent_solaredge)
-    upload_df(df_solaredge_energy, upload_path_parent_solaredge)
+    upload_df(df_solaredge_power, upload_path_parent_solaredge_power)
+    upload_df(df_solaredge_energy, upload_path_parent_solaredge_energy)
 
 except Exception as e:
     tb = format_exc()
