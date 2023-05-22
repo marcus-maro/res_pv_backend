@@ -8,6 +8,7 @@ from gfuncs import drive, gmail
 
 from res_pv_backend.data_insert.data_insert import insert_df
 from res_pv_backend.data_query import solaredge, solcast
+from res_pv_backend.utils import send_sms
 
 logging.basicConfig(
     filename=Path(__file__).parent / "data_upload.log",
@@ -65,9 +66,18 @@ try:
 except Exception as e:
     tb = format_exc()
     logging.error(tb)
-    gmail.send_email(
-        subject="Error during data upload",
-        body=tb,
-    )
+    try:
+        gmail.send_email(
+            subject="Error during data upload",
+            body=tb,
+        )
+    except Exception as e:
+        logging.error("Error sending email")
+        logging.error(format_exc())
+        try:
+            send_sms("res_pv_backend: Error during data upload")
+        except Exception as e:
+            logging.error("Error sending SMS")
+            logging.error(format_exc())
 
 logging.info("Finished data upload script")
