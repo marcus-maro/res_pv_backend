@@ -5,6 +5,7 @@ from traceback import format_exc
 
 import pandas as pd
 from gfuncs import drive, gmail
+from pandas.tseries.offsets import DateOffset
 
 from res_pv_backend.data_insert.data_insert import insert_df
 from res_pv_backend.data_query import solaredge, solcast
@@ -47,9 +48,16 @@ def upload_df(df, upload_path_parent):
 
 
 try:
+    now_local = pd.Timestamp.now(tz=solaredge.TZ_LOCAL)
+    end_time = now_local.floor("1D")
+    start_time = end_time - DateOffset(days=3)
+    end_time = end_time.strftime("%Y-%m-%d %H:%M:%S")
+    start_time = start_time.strftime("%Y-%m-%d %H:%M:%S")
+
     df_solcast = solcast.get_pv_estimate()
     df_solaredge_power = solaredge.get_site_power()
     df_solaredge_energy = solaredge.get_site_energy()
+    df_solaredge_inv_tech = solaredge.get_inverter_technical_data(start_time, end_time)
 
     insert_df(df_solcast)
     insert_df(df_solaredge_power)
@@ -62,6 +70,17 @@ try:
     upload_df(df_solcast, upload_path_parent_solcast)
     upload_df(df_solaredge_power, upload_path_parent_solaredge_power)
     upload_df(df_solaredge_energy, upload_path_parent_solaredge_energy)
+
+    inv_tech_index_seconds = sorted(list(df_solaredge_inv_tech.index.second.unique()))
+    if inv_tech_index_seconds != [0, 59]:
+        raise ValueError("Unexpected inv_tech_index_seconds")
+    else:
+        df_solaredge_inv_tech.index = df_solaredge_inv_tech.index.round("1T")
+        insert_df(df_solaredge_inv_tech)
+        upload_parent_path_solaredge_inv_tech = Path(
+            "res_pv/data/solaredge/inverter_technical_data"
+        )
+        upload_df(df_solaredge_inv_tech, upload_parent_path_solaredge_inv_tech)
 
 except Exception as e:
     tb = format_exc()
