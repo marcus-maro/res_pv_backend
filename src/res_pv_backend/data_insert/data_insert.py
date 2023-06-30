@@ -1,6 +1,5 @@
 import pandas as pd
 import psycopg
-
 from res_pv_backend.db_query import db_query
 from res_pv_backend.utils import get_auth
 
@@ -17,7 +16,7 @@ def insert_df(df_in: pd.DataFrame) -> None:
         df[col] = df[col] * unit_scaling
 
     # Reshape DataFrame to have 3 columns, timestamp, data, column name
-    df = df.unstack().reset_index()
+    df = df.unstack().reset_index().dropna()
     df.columns = ["name_raw", "timestamp", "value"]
     df["sensor_id"] = df["name_raw"].map(sensor_id_map)
     df = df.drop(columns=["name_raw"])
@@ -28,12 +27,13 @@ def insert_df(df_in: pd.DataFrame) -> None:
 
     with psycopg.connect(db_connection) as conn:
         with conn.cursor() as cur:
-            for _, row in df.iterrows():
-                cur.execute(
-                    """
-                    INSERT INTO sensor_data (timestamp, sensor_id, value)
-                    VALUES (%s, %s, %s)
-                    ON CONFLICT (timestamp, sensor_id) DO UPDATE SET value = EXCLUDED.value;
-                    """,
-                    (row["timestamp"], row["sensor_id"], row["value"]),
-                )
+            data = [
+                (row["timestamp"], row["sensor_id"], row["value"])
+                for _, row in df.iterrows()
+            ]
+            query = """
+            INSERT INTO sensor_data (timestamp, sensor_id, value)
+            VALUES (%s, %s, %s)
+            ON CONFLICT (timestamp, sensor_id) DO UPDATE SET value = EXCLUDED.value;
+            """
+            cur.executemany(query, data)
