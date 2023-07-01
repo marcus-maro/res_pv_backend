@@ -7,7 +7,10 @@ import pandas as pd
 from gfuncs import drive, gmail
 from pandas.tseries.offsets import DateOffset
 
-from res_pv_backend.data_insert.data_insert import insert_df
+from res_pv_backend.data_insert.data_insert import (
+    insert_df,
+    insert_environmental_benefits,
+)
 from res_pv_backend.data_query import solaredge, solcast
 from res_pv_backend.utils import send_sms
 
@@ -58,10 +61,12 @@ try:
     df_solaredge_power = solaredge.get_site_power()
     df_solaredge_energy = solaredge.get_site_energy()
     df_solaredge_inv_tech = solaredge.get_inverter_technical_data(start_time, end_time)
+    dict_env_benefits = solaredge.get_site_environmental_benefits()
 
     insert_df(df_solcast)
     insert_df(df_solaredge_power)
     insert_df(df_solaredge_energy)
+    insert_environmental_benefits(dict_env_benefits)
 
     upload_path_parent_solcast = Path("res_pv/data/solcast")
     upload_path_parent_solaredge_power = Path("res_pv/data/solaredge/site_power")
