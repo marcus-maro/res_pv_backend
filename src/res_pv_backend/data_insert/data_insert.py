@@ -37,3 +37,18 @@ def insert_df(df_in: pd.DataFrame) -> None:
             ON CONFLICT (timestamp, sensor_id) DO UPDATE SET value = EXCLUDED.value;
             """
             cur.executemany(query, data)
+
+
+def insert_environmental_benefits(data: dict) -> None:
+    auth_data = get_auth()
+    db_connection = auth_data["db_connection"]
+
+    with psycopg.connect(db_connection) as conn:
+        with conn.cursor() as cur:
+            data = [(k, v) for k, v in data.items()]
+            query = """
+            INSERT INTO environmental_benefits (metric, value)
+            VALUES (%s, %s)
+            ON CONFLICT (metric) DO UPDATE SET value = EXCLUDED.value;
+            """
+            cur.executemany(query, data)
