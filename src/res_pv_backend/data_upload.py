@@ -71,21 +71,21 @@ try:
     upload_path_parent_solcast = Path("res_pv/data/solcast")
     upload_path_parent_solaredge_power = Path("res_pv/data/solaredge/site_power")
     upload_path_parent_solaredge_energy = Path("res_pv/data/solaredge/site_energy")
+    upload_parent_path_solaredge_inv_tech = Path(
+        "res_pv/data/solaredge/inverter_technical_data"
+    )
 
     upload_df(df_solcast, upload_path_parent_solcast)
     upload_df(df_solaredge_power, upload_path_parent_solaredge_power)
     upload_df(df_solaredge_energy, upload_path_parent_solaredge_energy)
+    upload_df(df_solaredge_inv_tech, upload_parent_path_solaredge_inv_tech)
 
     inv_tech_index_seconds = sorted(list(df_solaredge_inv_tech.index.second.unique()))
-    if inv_tech_index_seconds != [0, 59]:
+    if inv_tech_index_seconds != [0, 1, 59]:
         raise ValueError("Unexpected inv_tech_index_seconds")
     else:
         df_solaredge_inv_tech.index = df_solaredge_inv_tech.index.round("1T")
         insert_df(df_solaredge_inv_tech)
-        upload_parent_path_solaredge_inv_tech = Path(
-            "res_pv/data/solaredge/inverter_technical_data"
-        )
-        upload_df(df_solaredge_inv_tech, upload_parent_path_solaredge_inv_tech)
 
 except Exception as e:
     tb = format_exc()
