@@ -81,7 +81,8 @@ try:
     upload_df(df_solaredge_inv_tech, upload_parent_path_solaredge_inv_tech)
 
     inv_tech_index_seconds = sorted(list(df_solaredge_inv_tech.index.second.unique()))
-    if inv_tech_index_seconds != [0, 1, 59]:
+    logging.info(f"inv_tech_index_seconds: {inv_tech_index_seconds}")
+    if inv_tech_index_seconds != [0, 1, 2, 58, 59]:
         raise ValueError("Unexpected inv_tech_index_seconds")
     else:
         df_solaredge_inv_tech.index = df_solaredge_inv_tech.index.round("1T")
