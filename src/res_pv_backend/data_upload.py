@@ -82,7 +82,9 @@ try:
 
     inv_tech_index_seconds = sorted(list(df_solaredge_inv_tech.index.second.unique()))
     logging.info(f"inv_tech_index_seconds: {inv_tech_index_seconds}")
-    if inv_tech_index_seconds != [0, 1, 2, 58, 59]:
+    expected_index_seconds = [0, 1, 2, 58, 59]
+
+    if not all([x in expected_index_seconds for x in inv_tech_index_seconds]):
         raise ValueError("Unexpected inv_tech_index_seconds")
     else:
         df_solaredge_inv_tech.index = df_solaredge_inv_tech.index.round("1T")
