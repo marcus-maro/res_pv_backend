@@ -53,7 +53,7 @@ TZ_LOCAL = "America/Boise"
 #   - NOT USED: Installer Logo Image
 #   - NOT USED: Components List (redundant with Inventory)
 #   - COMPLETE: INventory
-#   - Inverter Technical Data
+#   - COMPLETE: Inverter Technical Data
 #   - NOT USED: Equipment Change Log
 #   - NOT USED: Accounts List
 #   - NOT USED: Meters Data (only one meter)
@@ -68,7 +68,7 @@ def get_auth_data() -> tuple:
     return api_key, site_id
 
 
-def get_inverter_technical_data(startTime, endTime):
+def get_inverter_technical_data(startTime, endTime) -> pd.DataFrame:
     api_key, site_id = get_auth_data()
 
     url = f"{BASE_URL}/equipment/{site_id}/740DB3E5-19/data"
@@ -232,7 +232,7 @@ def get_site_energy_time_period(start_date: str, end_date: str) -> pd.DataFrame:
     return data
 
 
-def get_site_environmental_benefits():
+def get_site_environmental_benefits() -> dict:
     api_key, site_id = get_auth_data()
 
     url = f"{BASE_URL}/site/{site_id}/envBenefits"
