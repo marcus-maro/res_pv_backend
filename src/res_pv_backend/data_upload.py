@@ -53,7 +53,7 @@ def upload_df(df, upload_path_parent):
 try:
     now_local = pd.Timestamp.now(tz=solaredge.TZ_LOCAL)
     end_time = now_local.floor("1D")
-    start_time = end_time - DateOffset(days=3)
+    start_time = end_time - DateOffset(days=6)
     end_time = end_time.strftime("%Y-%m-%d %H:%M:%S")
     start_time = start_time.strftime("%Y-%m-%d %H:%M:%S")
 
@@ -80,15 +80,11 @@ try:
     upload_df(df_solaredge_energy, upload_path_parent_solaredge_energy)
     upload_df(df_solaredge_inv_tech, upload_parent_path_solaredge_inv_tech)
 
-    inv_tech_index_seconds = sorted(list(df_solaredge_inv_tech.index.second.unique()))
-    logging.info(f"inv_tech_index_seconds: {inv_tech_index_seconds}")
-    expected_index_seconds = [0, 1, 2, 3, 18, 57, 58, 59]
-
-    if not all([x in expected_index_seconds for x in inv_tech_index_seconds]):
-        raise ValueError("Unexpected inv_tech_index_seconds")
-    else:
-        df_solaredge_inv_tech.index = df_solaredge_inv_tech.index.round("1T")
-        insert_df(df_solaredge_inv_tech)
+    df_solaredge_inv_tech.index = df_solaredge_inv_tech.index.round("1T")
+    df_solaredge_inv_tech = df_solaredge_inv_tech[
+        ~df_solaredge_inv_tech.index.duplicated()
+    ]
+    insert_df(df_solaredge_inv_tech)
 
 except Exception as e:
     tb = format_exc()
