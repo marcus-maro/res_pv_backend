@@ -96,7 +96,9 @@ def get_inverter_technical_data(startTime, endTime) -> pd.DataFrame:
     df = pd.DataFrame(index=index, data=data_formatted)
 
     df.index = pd.to_datetime(df.index)
-    df.index = df.index.tz_localize(TZ_LOCAL, ambiguous="NaT").tz_convert("UTC")
+    df.index = df.index.tz_localize(
+        TZ_LOCAL, ambiguous="NaT", nonexistent="NaT"
+    ).tz_convert("UTC")
 
     # Remove anything later than now
     now_floor_15min = pd.Timestamp.utcnow().floor("15min")
@@ -194,7 +196,9 @@ def get_site_energy(start_date: str = None, end_date: str = None) -> pd.DataFram
 
     df["date"] = pd.to_datetime(df["date"])
     df = df.set_index("date")
-    df.index = df.index.tz_localize(TZ_LOCAL, ambiguous="NaT").tz_convert("UTC")
+    df.index = df.index.tz_localize(
+        TZ_LOCAL, ambiguous="NaT", nonexistent="NaT"
+    ).tz_convert("UTC")
 
     # Remove anything later than now
     now_floor_15min = pd.Timestamp.utcnow().floor("15min")
@@ -326,7 +330,9 @@ def get_site_power(start_time: str = None, end_time: str = None) -> pd.DataFrame
 
     df["date"] = pd.to_datetime(df["date"])
     df = df.set_index("date")
-    df.index = df.index.tz_localize(TZ_LOCAL, ambiguous="NaT").tz_convert("UTC")
+    df.index = df.index.tz_localize(
+        TZ_LOCAL, ambiguous="NaT", nonexistent="NaT"
+    ).tz_convert("UTC")
 
     # Remove anything later than now
     now_floor_15min = pd.Timestamp.utcnow().floor("15min")
